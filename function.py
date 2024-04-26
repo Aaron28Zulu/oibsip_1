@@ -15,8 +15,7 @@ import pyttsx3
 import wikipedia as wk
 import subprocess
 import requests
-
-import pyjokes
+import Joking
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 MONTHS = list(calendar.month_name)
@@ -55,10 +54,9 @@ get_temperature = f"Temperature in {CITY}: {temp_celcius:.2f}°C or {temp_fahren
 temperature_desc = f"General weather in {CITY}: {description}"
 
 
-import pyjokes
-
 def get_joke():
-    joke = pyjokes.get_joke()
+    joke = Joking.random_joke()
+
     return joke
 
 
