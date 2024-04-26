@@ -24,34 +24,38 @@ DAY_EXTENSIONS = ["st", "nd", "rd"]
 
 
 # WEATHER VARs
-BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
-API_KEY = open('weather_api_key.txt', 'r').read()
-CITY = "Ndola"
 
-url = BASE_URL + "q=" + CITY + "&appid=" + API_KEY
+def get_weather(city: str):
+    BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
+    API_KEY = open('weather_api_key.txt', 'r').read()
+    CITY = city
 
-response = requests.get(url).json()
+    url = BASE_URL + "q=" + CITY + "&appid=" + API_KEY
 
-
-def temp_converter(kelvin):
-    celcius = kelvin - 273.15
-    fahrenheit = celcius * (9/5) + 32
-    return celcius, fahrenheit
+    response = requests.get(url).json()
 
 
-temp_kelvin = response['main']['temp']
-temp_celcius, temp_fahrenheit = temp_converter(temp_kelvin)
-
-feels_like_kelvin = response['main']['feels_like']
-feels_like_celcius, feels_like_fahrenheit = temp_converter(feels_like_kelvin)
-
-description = response['weather'][0]['description']
-sunrise_time = datetime.datetime.utcfromtimestamp(response['sys']['sunrise'] + response['timezone'])
-sunset_time = datetime.datetime.utcfromtimestamp(response['sys']['sunset'] + response['timezone'])
+    def temp_converter(kelvin):
+        celcius = kelvin - 273.15
+        fahrenheit = celcius * (9/5) + 32
+        return celcius, fahrenheit
 
 
-get_temperature = f"Temperature in {CITY}: {temp_celcius:.2f}°C or {temp_fahrenheit:.2f}°F"
-temperature_desc = f"General weather in {CITY}: {description}"
+    temp_kelvin = response['main']['temp']
+    temp_celcius, temp_fahrenheit = temp_converter(temp_kelvin)
+
+    feels_like_kelvin = response['main']['feels_like']
+    feels_like_celcius, feels_like_fahrenheit = temp_converter(feels_like_kelvin)
+
+    description = response['weather'][0]['description']
+    sunrise_time = datetime.datetime.utcfromtimestamp(response['sys']['sunrise'] + response['timezone'])
+    sunset_time = datetime.datetime.utcfromtimestamp(response['sys']['sunset'] + response['timezone'])
+
+
+    temperature_desc = f"The city {CITY} is having a {description}, with Temperature {temp_celcius:.2f}°C or {temp_fahrenheit:.2f}°F"
+
+
+    return temperature_desc
 
 
 def get_joke():

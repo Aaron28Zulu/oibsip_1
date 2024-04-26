@@ -91,6 +91,17 @@ while True:
 
                 main()
 
+        
+        for phrase in ["weather data", "weather forecast"]:
+            if phrase in text:
+                speak("You want the weather forecast for which city?")
+                city = record_audio()
+                if city is not None:
+                    city_info = get_weather(city)
+                    speak(city_info)
+                else:
+                    speak("Couldn't get the data. Kindly pass the command again")
+
 
     # import socket
 
