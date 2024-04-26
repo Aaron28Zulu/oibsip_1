@@ -5,121 +5,122 @@ from tags import *
 from responses import *
 
 
-while True:
+def main():
+    print("Listening...")
+    text = record_audio()
+    
 
-    def main():
-        print("Listening...")
-        text = record_audio()
-        
-
-        # WAKE UP BOT
-        for word in WAKE: 
-            wake_response = random.choice(wake_responses)
-            if word in text:
-                speak(wake_response)
-        
-                main()
+    # WAKE UP BOT
+    for word in WAKE: 
+        wake_response = random.choice(wake_responses)
+        if word in text:
+            speak(wake_response)
+    
+            main()
 
 
-        # NAME
-        for phrase in NAME:
-            name_response = random.choice(name_responses)
-            if phrase == text:
-                speak(name_response)
+    # NAME
+    for phrase in NAME:
+        name_response = random.choice(name_responses)
+        if phrase == text:
+            speak(name_response)
 
-                main()
+            main()
 
-        
-        # CAPABILITIES
-        for phrase in CAPABILITIES:
-            cap_response = random.choice(capability_responses)
-            if phrase in text:
-                speak(cap_response)
+    
+    # CAPABILITIES
+    for phrase in CAPABILITIES:
+        cap_response = random.choice(capability_responses)
+        if phrase in text:
+            speak(cap_response)
 
-                main()
-
-
-        # FAREWELL
-        for phrase in FAREWELLS:
-            farewell_response = random.choice(farewell_responses)
-            if phrase in text:
-                speak(farewell_response)
-
-                print("Stopped Listening...")
-
-                sys.exit()
+            main()
 
 
-        # TAKES NOTES
-        for phrase in NOTE_STRS:
-            if phrase == text:
-                speak("What would you like me to note down?")
-                note_text = record_audio()
-                write_note(note_text)
-                speak("I've made a note of that.")
+    # FAREWELL
+    for phrase in FAREWELLS:
+        farewell_response = random.choice(farewell_responses)
+        if phrase in text:
+            speak(farewell_response)
 
-                main()
+            print("Stopped Listening...")
 
-        # WIKI SEARCH
-        WIKIPEDIA_STRS = ["search", "wikipedia", "give insight", "summerize", "summerise"]
-        for word in WIKIPEDIA_STRS:
-            if word in text:
-                speak("What would you like me to summerize?")
-                text = record_audio()
-
-                summarised_note = search_wiki(text)
-                speak(summarised_note)
-
-                main()
+            sys.exit()
 
 
-        # DATES
-        DATE_STRS = ["what is the date today"]
-        for phrase in DATE_STRS:
-            if phrase in text:
-                date = get_date()
-                speak(date)
+    # TAKES NOTES
+    for phrase in NOTE_STRS:
+        if phrase == text:
+            speak("What would you like me to note down?")
+            note_text = record_audio()
+            write_note(note_text)
+            speak("I've made a note of that.")
 
-                main()
+            main()
 
+    # WIKI SEARCH
+    WIKIPEDIA_STRS = ["search", "wikipedia", "give insight", "summerize", "summerise"]
+    for word in WIKIPEDIA_STRS:
+        if word in text:
+            speak("What would you like me to summerize?")
+            text = record_audio()
 
-        # TELL JOKES
-        for phrase in JOKES:
-            if "joke" in text:
-                joke = get_joke()
-                speak(joke)
+            summarised_note = search_wiki(text)
+            speak(summarised_note)
 
-                main()
-
-        
-        for phrase in ["weather data", "weather forecast"]:
-            if phrase in text:
-                speak("You want the weather forecast for which city?")
-                city = record_audio()
-                if city is not None:
-                    city_info = get_weather(city)
-                    speak(city_info)
-                else:
-                    speak("Couldn't get the data. Kindly pass the command again")
+            main()
 
 
-    # import socket
+    # DATES
+    DATE_STRS = ["what is the date today"]
+    for phrase in DATE_STRS:
+        if phrase in text:
+            date = get_date()
+            speak(date)
 
-    # def get_ip():
-    #     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    #     s.settimeout(0)
-    #     try:
-    #         # Doesn't even have to be reachable
-    #         s.connect(('10.254.254.254', 1))
-    #         IP = s.getsockname()[0]
-    #     except Exception:
-    #         IP = '127.0.0.1'
-    #     finally:
-    #         s.close()
-    #     return IP
-
-    # print(f"Your local IP address is: {get_ip()}")
+            main()
 
 
+    # TELL JOKES
+    for phrase in JOKES:
+        if "joke" in text:
+            joke = get_joke()
+            speak(joke)
 
+            main()
+
+    
+    for phrase in ["weather data", "weather forecast"]:
+        if phrase in text:
+            speak("You want the weather forecast for which city?")
+            city = record_audio()
+            if city is not None:
+                city_info = get_weather(city)
+                speak(city_info)
+            else:
+                speak("Couldn't get the data. Kindly pass the command again")
+
+
+import socket
+def check_internet_connection():
+    remote_server = "www.google.com"
+    port = 80
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(5)
+    try:
+        sock.connect((remote_server, port))
+        return True
+    except socket.error:
+        return False
+    finally:
+        sock.close()
+
+    
+
+while check_internet_connection():
     main()
+
+
+speak("Can not sent request, please make sure you are online")
+print("Internet is not connected.")
+sys.exit()
