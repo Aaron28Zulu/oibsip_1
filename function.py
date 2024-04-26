@@ -1,30 +1,66 @@
-import os
+import os, os.path
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
 import datetime
-import os.path
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+
 import tkinter as tk
 import calendar
 import speech_recognition as sr
 import pyttsx3
 import wikipedia as wk
 import subprocess
-import threading
-from PIL import Image, ImageTk
+import requests
 
-# TODO: Have the Mic active and listening to user' feed
-# TODO: Convert audio to text
-# TODO: Check for key words in the generated text
-# TODO: Have a dictionary of responses according to user queries
-# TODO: Trigger response to user' query 
+import pyjokes
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 MONTHS = list(calendar.month_name)
 DAYS = list(calendar.day_name)
 DAY_EXTENSIONS = ["st", "nd", "rd"]
+
+
+# WEATHER VARs
+BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
+API_KEY = open('weather_api_key.txt', 'r').read()
+CITY = "Ndola"
+
+url = BASE_URL + "q=" + CITY + "&appid=" + API_KEY
+
+response = requests.get(url).json()
+
+
+def temp_converter(kelvin):
+    celcius = kelvin - 273.15
+    fahrenheit = celcius * (9/5) + 32
+    return celcius, fahrenheit
+
+
+temp_kelvin = response['main']['temp']
+temp_celcius, temp_fahrenheit = temp_converter(temp_kelvin)
+
+feels_like_kelvin = response['main']['feels_like']
+feels_like_celcius, feels_like_fahrenheit = temp_converter(feels_like_kelvin)
+
+description = response['weather'][0]['description']
+sunrise_time = datetime.datetime.utcfromtimestamp(response['sys']['sunrise'] + response['timezone'])
+sunset_time = datetime.datetime.utcfromtimestamp(response['sys']['sunset'] + response['timezone'])
+
+
+get_temperature = f"Temperature in {CITY}: {temp_celcius:.2f}°C or {temp_fahrenheit:.2f}°F"
+temperature_desc = f"General weather in {CITY}: {description}"
+
+
+import pyjokes
+
+def get_joke():
+    joke = pyjokes.get_joke()
+    return joke
+
 
 def speak(text):
     engine = pyttsx3.init()
@@ -33,6 +69,9 @@ def speak(text):
 
 
 def record_audio():
+    """
+    Records audio from mic sourse and output it as text
+    """
     r = sr.Recognizer()
     with sr.Microphone() as mic:
         # Recognizer receive input 
@@ -55,16 +94,19 @@ def record_audio():
 
 
 def search_wiki(text):
+    """
+    Displays a summary of the argument(text) provided, summary generated from wikipedia
+    """
     try:
         results = wk.summary(text, 2)
         print(results)
         return results
     except Exception as e:
         print("Exception error: " + str(e))
-        icon.config(fg="black")
 
 
 def authenticate_calendar():
+    """Authenticate google api"""
     creds = None
     userFile = "token.json"
 
@@ -88,7 +130,8 @@ def authenticate_calendar():
 
 
 def get_event(num_of_events, service):
-
+    """Displays events saved on google calendar. Take two arguments, number of events to dispaly and service from google
+    """
     now = datetime.datetime.now().isoformat() + "Z"
 
     print(f"Getting the upcoming {num_of_events} events")
@@ -125,70 +168,4 @@ def write_note(text):
 
     subprocess.Popen(["notepad.exe", file_name])
 
-
-def main():
-    isBot_of = False
-    WAKE = ["hey bot", "bot", "wake", "wake up"]
-
-    while not isBot_of:
-        print("Listening...")
-        text = record_audio()
-
-        if text is not None:
-            icon.config(fg="green")
-            
-        else:
-            icon.config(fg="black")
-
-        # WAKE UP BOT
-        for word in WAKE: 
-            if word in text:
-                speak("Hi, I'm Bot. How can I assist you?")
-        
-                text = record_audio() # Reinitilise mic to get new input
-
-        # TAKES NOTES
-        NOTE_STRS = ["make a note", "write this down", "remember this", "take notes"]
-        for phrase in NOTE_STRS:
-            if phrase in text:
-                speak("What would you like me to note down?")
-                note_text = record_audio()
-                write_note(note_text)
-                speak("I've made a note of that.")
-
-        # WIKI SEARCH
-        WIKIPEDIA_STRS = ["search", "wikipedia", "give insight", "summerize", "summerise"]
-        for word in WIKIPEDIA_STRS:
-            if word in text:
-                speak("What would you like me to summerize?")
-                text = record_audio()
-
-                summarised_note = search_wiki(text)
-                speak(summarised_note)
-
-        # DATES
-        DATE_STRS = ["what is the date today"]
-        for phrase in DATE_STRS:
-            if phrase in text:
-                date = get_date()
-                speak(date)
-
-#GUI
-root = tk.Tk()
-root.title("Bot Assistant")
-root.minsize(width=300, height=300)
-root.resizable(False, False)
-
-
-gui_msg = tk.Message(root, text="Try saying", justify="center", pady=30)
-gui_msg.grid(column=1, row=0)
-
-icon = tk.Label(root, text="🔊", font=("Arial", 50, "bold"))
-icon.grid(column=0, row=1)
-
-msg = tk.Message(root, text="tell me a joke", justify="center")
-msg.grid(column=1, row=1)
-
-threading.Thread(target=main).start()
-
-root.mainloop()
+                

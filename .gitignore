@@ -1,3 +1,5 @@
 .idea
 *.mp3
 *txt
+__pycache__
+tempCodeRunnerFile.py
