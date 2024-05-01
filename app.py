@@ -100,6 +100,7 @@ def main():
 
                 main()
 
+        #  WEATHER DATA
         for phrase in ["weather data", "weather forecast"]:
             if phrase in text:
                 speak("You want the weather forecast for which city?")
