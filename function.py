@@ -107,56 +107,6 @@ def search_wiki(text):
         print("Exception error: " + str(e))
 
 
-def authenticate_calendar():
-    """Authenticate google api"""
-    creds = None
-    userFile = "token.json"
-
-    if os.path.exists(userFile):
-        creds = Credentials.from_authorized_user_file(userFile)
-
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            creds = flow.run_local_server(port=0)
-
-        with open(userFile, "w") as token:
-            token.write(creds.to_json())
-
-
-    service = build("calendar", "v3", credentials=creds)
-
-    return service
-
-
-def get_event(num_of_events, service):
-    """Displays events saved on google calendar. Take two arguments, number of events to dispaly and service from google
-    """
-    now = datetime.datetime.now().isoformat() + "Z"
-
-    print(f"Getting the upcoming {num_of_events} events")
-
-    event_result = service.events().list(calendarId="primary", 
-                                         timeMin=now, 
-                                         maxResults=num_of_events, 
-                                         singleEvents=True, 
-                                         orderBy="startTime").execute()
-    events = event_result.get("items", [])
-
-    if not events:
-        print("No upoming events found! ")
-
-
-    for event in events:
-        start = event["start"].get("dateTime", event["start"].get("date"))
-
-        print(start, event["summary"])
-
-service = authenticate_calendar() # To authenticate google calendar api
-
-
 def get_date():
     today = datetime.date.today()
     return today
