@@ -4,7 +4,6 @@ from function import *
 from tags import *
 from responses import *
 
-
 import socket
 
 
@@ -20,6 +19,7 @@ def check_internet_connection():
         return False
     finally:
         sock.close()
+
 
 def main():
     if check_internet_connection():
@@ -72,10 +72,10 @@ def main():
                 main()
 
         # WIKI SEARCH
-        WIKIPEDIA_STRS = ["search", "wikipedia", "give insight", "summerize", "summerise"]
+        WIKIPEDIA_STRS = ["search", "wikipedia", "give insight", "summarize", "summarise"]
         for word in WIKIPEDIA_STRS:
             if word in text:
-                speak("What would you like me to summerize?")
+                speak("What would you like me to summarize?")
                 text = record_audio()
 
                 summarised_note = search_wiki(text)
@@ -94,7 +94,7 @@ def main():
 
         # TELL JOKES
         for phrase in JOKES:
-            if "joke" in text:
+            if "joke" or phrase in text:
                 joke = get_joke()
                 speak(joke)
 
